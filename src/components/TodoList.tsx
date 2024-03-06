@@ -1,10 +1,10 @@
 import React from "react";
-import { Todo } from "./Home";
+import { Todo } from "../types/types";
 
 interface TodoListProps {
   todos: Todo[];
   headTitle: string;
-  onToggleClick: (id: number) => void; //아무것도 반환하지 않음을 선언
+  onToggleClick: (id: number) => void;
   onDeleteClick: (id: number) => void;
 }
 

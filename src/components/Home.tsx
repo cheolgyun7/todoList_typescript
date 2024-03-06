@@ -1,83 +1,45 @@
-import React, { useState } from "react";
+// src/features/todo/TodoApp.tsx
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+import { deleteTodo, toggleTodo } from "../redux/todoSlice";
+// import { fetchTodos } from "../redux/todoAction";
+import TodoForm from "./TodoForm";
 import TodoList from "./TodoList";
 
-export interface Todo {
-  id: number;
-  title: string;
-  content: string;
-  completed: boolean;
-}
-
-const Home = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    let newTodo: Todo = {
-      id: todos.length + 1,
-      title,
-      content,
-      completed: false,
-    };
-    setTodos([...todos, newTodo]);
-    setTitle("");
-    setContent("");
-  };
-  const onToggleClick = (id: number) => {
-    // 작성글의id를 클릭
-    setTodos(
-      (
-        prevTodos //setTodos호출
-      ) =>
-        prevTodos.map(
-          (
-            todo //전의 todos를 map함수로 호출
-          ) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)
-        )
-    );
-  };
-  const onDeleteClick = (id: number) => {
-    setTodos((todo) => todo.filter((item) => item.id !== id));
-  };
+const TodoApp: React.FC = () => {
+  const dispatch = useDispatch();
+  const todos = useSelector((state: RootState) => state.todo.todos);
 
   const workingTodos = todos.filter((todo) => !todo.completed);
-  const DoneTodos = todos.filter((todo) => todo.completed);
+  const doneTodos = todos.filter((todo) => todo.completed);
+
+  const handleToggleClick = (id: number) => {
+    dispatch(toggleTodo(id));
+  };
+
+  const handleDeleteClick = (id: number) => {
+    dispatch(deleteTodo(id));
+  };
 
   return (
     <div>
       <h3>React_typescript</h3>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="title">제목 : </label>
-        <input
-          id="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <br />
-        <label htmlFor="content">내용 : </label>
-        <input
-          id="content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <button type="submit">저장</button>
-      </form>
+      <TodoForm />
       <TodoList
         todos={workingTodos}
         headTitle="진행중"
-        onToggleClick={onToggleClick}
-        onDeleteClick={onDeleteClick}
+        onToggleClick={handleToggleClick}
+        onDeleteClick={handleDeleteClick}
       />
       <TodoList
-        todos={DoneTodos}
+        todos={doneTodos}
         headTitle="완료"
-        onToggleClick={onToggleClick}
-        onDeleteClick={onDeleteClick}
+        onToggleClick={handleToggleClick}
+        onDeleteClick={handleDeleteClick}
       />
     </div>
   );
 };
 
-export default Home;
+export default TodoApp;
