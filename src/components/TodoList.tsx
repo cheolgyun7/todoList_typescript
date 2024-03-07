@@ -1,35 +1,31 @@
 import React from "react";
-import { Todo } from "../types/types";
+import { getTodos } from "../api/todos";
+import { useQuery } from "react-query";
+import TodoCard from "./TodoCard";
 
 interface TodoListProps {
-  todos: Todo[];
-  headTitle: string;
-  onToggleClick: (id: number) => void;
-  onDeleteClick: (id: number) => void;
+  isActive: boolean;
 }
 
-const TodoList: React.FC<TodoListProps> = ({
-  todos,
-  headTitle,
-  onToggleClick,
-  onDeleteClick,
-}) => {
+const TodoList: React.FC<TodoListProps> = ({ isActive }) => {
+  const { data, isLoading, isError } = useQuery("todos", getTodos);
+  if (isLoading) {
+    return <p>로딩중입니다....!</p>;
+  }
+
+  if (isError) {
+    return <p>오류가 발생하였습니다...!</p>;
+  }
+
   return (
     <div>
-      <h3>{headTitle}</h3>
+      <h3>{isActive ? "해야 할 일 😢" : "완료한 일 👍"}</h3>
       <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>
-            <div>
-              <strong>{todo.title}</strong>
-            </div>
-            <div>{todo.content}</div>
-            <button onClick={() => onDeleteClick(todo.id)}>삭제</button>
-            <button onClick={() => onToggleClick(todo.id)}>
-              {todo.completed ? "취소" : "완료"}
-            </button>
-          </li>
-        ))}
+        {data
+          ?.filter((item) => item.completed === !isActive)
+          .map((item) => {
+            return <TodoCard key={item.id} todo={item} isActive={isActive} />;
+          })}
       </ul>
     </div>
   );
